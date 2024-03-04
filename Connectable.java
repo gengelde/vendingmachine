@@ -1,5 +1,5 @@
 public interface Connectable
 {
-    void connect();
+    Boolean connect();
     String getLastEvent();
 }

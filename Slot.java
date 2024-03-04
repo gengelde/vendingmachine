@@ -33,7 +33,7 @@ public class Slot
         return quantity;
     }
     // no usages at the moment
-    public String getID()
+    public String getProdID()
     {
         return productID;
     }

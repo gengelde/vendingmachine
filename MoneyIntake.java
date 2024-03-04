@@ -1,11 +1,46 @@
-public class MoneyIntake implements Moneyable
+import javax.swing.*;
+
+public class MoneyIntake implements Moneyable, Runnable
 {
     double total;
     String info;
-    public MoneyIntake()
+    String input;
+    boolean running = true;
+    private Message msg;
+    public MoneyIntake(Message msg)
     {
-
+        this.msg = msg;
     }
+    public void run()
+    {
+        while(running)
+        {
+            // Display Input Dialog box to user "Insert Cash:"
+            input = JOptionPane.showInputDialog(null, "Insert Cash:");
+            // Synchronize thread block with other threads synchronized with message class
+            synchronized (msg)
+            {
+                if (input == null)
+                {
+                    try {
+                        Thread.sleep(1000);
+                    }
+                    catch (InterruptedException e)
+                    {
+                        System.out.println(e.getMessage());
+                    }
+                }
+                else
+                {
+                    msg.setMsg(input);
+                    System.out.println(input);
+                    msg.setName(null);
+                    msg.notify();
+                }
+            }
+        }
+    }
+
     public String getLastEvent()
     {
         // return info set by other methods

@@ -7,16 +7,31 @@ public class VendingMech implements Vendable
     Slot A3 = new Slot(2.79, 0, "000000000003");
     Map<String, Slot> map = new HashMap<String, Slot>();
     String info;
+    String selectedID;
     public VendingMech()
     {
         loadProductMap();
     }
     public boolean selectSlot(String slotID)
     {
+        selectedID = slotID;
+        if (map.containsKey(slotID))
+        {
+            // allow for edits of user inputted selected slot
+            Slot selectedSlot = map.get(slotID);
+
+            if (selectedSlot.getQuantity() < 1)
+            {
+                // set info for getLastEvent to return when called
+                info = "selectSlot " + "user inputted slotID: " + slotID;
+                return false;
+            }
+            return true;
+        }
         // set info for getLastEvent to return when called
         info = "selectSlot " + "user inputted slotID: " + slotID;
         // check if user input matches any key in HashMap and return true or false
-        return map.containsKey(slotID);
+        return false;
     }
     public void loadProductMap()
     {
@@ -24,41 +39,27 @@ public class VendingMech implements Vendable
         map.put("A2", A2);
         map.put("A3", A3);
     }
-    public double getSelectedSlotPrice(String slotID)
+    public double getSelectedSlotPrice()
     {
         // allow for edits of user inputted selected slot
-        Slot selectedSlot = map.get(slotID);
+        Slot selectedSlot = map.get(selectedID);
         // set info for getLastEvent to return when called
-        info = "getSelectedSlotPrice " + "selected slot: " + slotID + " returned price: " + selectedSlot.getPrice();
+        info = "getSelectedSlotPrice " + "selected slot: " + selectedID + " returned price: " + selectedSlot.getPrice();
         // return price of selected slot
         return selectedSlot.getPrice();
     }
-
-    /*
-       Certain checks in main should be incorporated into VendingMech functions, however for them to be done in the
-       selectSlot method doesn't make much sense. I believe The checks should be done in separate methods and
-       returned as booleans for log and display purposes
-    */
-
-    /*
-       This function is **CURRENTLY** important for logging and displaying to
-       user "out of stock" separately from "invalid id"
-    */
-    public int getSelectedSlotQuantity(String slotID)
+    public String getSelectedSlotID()
     {
-        // allow for edits of user inputted selected slot
-        Slot selectedSlot = map.get(slotID);
-        // set info for getLastEvent to return when called
-        info = "getSelectedSlotQuantity " + "selected slot: " + slotID + " returned quantity: " + selectedSlot.getQuantity();
-        // return quantity of selected slot
-        return selectedSlot.getQuantity();
+        Slot selectedSlot = map.get(selectedID);
+        info = "";
+        return selectedSlot.getProdID();
     }
-    public void dispenseSelectedSlot(String slotID)
+    public void dispenseSelectedSlot()
     {
         // allow for edits of user inputted selected slot
-        Slot selectedSlot = map.get(slotID);
+        Slot selectedSlot = map.get(selectedID);
         // set info for getLastEvent to return when called
-        info = "dispenseSelectedSlot " + "selected slot: " + slotID + " dispensed";
+        info = "dispenseSelectedSlot " + "selected slot: " + selectedID + " dispensed";
         selectedSlot.quantity--;
     }
     public String getLastEvent()
