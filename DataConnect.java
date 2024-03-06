@@ -4,9 +4,13 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.ResultSet;
 import javax.swing.JOptionPane;
-
+/**
+ * The {@code DataConnect} class is responsible for connecting to a database and performing data-related operations.
+ * The {@code DataConnect} class implements the {@code Connectable} and {@code Runnable} interfaces.
+ */
 public class DataConnect implements Connectable, Runnable
 {
+    // Create instances of classes and Initialize Local Variables
     private Message msg;
     String info;
     String input;
@@ -19,16 +23,19 @@ public class DataConnect implements Connectable, Runnable
     final String pass = "pass123";
     /**
      * Constructs a new instance of {@code DataConnect} with the provided {@code Message}.
-     *
      * @param msg The {@code Message} object associated with the data connection.
      */
     public DataConnect(Message msg)
     {
+        // Assign the provided Message object to the local 'msg' variable
         this.msg = msg;
     }
-    // Initialize DataConnect Thread Block
+    /**
+     * The main execution logic for the DataConnect thread.
+     */
     public void run()
     {
+        // Running in progress
         while(running)
         {
             try
@@ -82,10 +89,35 @@ public class DataConnect implements Connectable, Runnable
                                 // Print exception message e to console
                                 System.out.println(e.getMessage());
                             }
-                            // SQL update balance statement
-                            String updateBalSQL = "UPDATE `vendingdata`.`customerprofiles` SET `acctBalance` = '" + msg.getMsg() + "' WHERE (`cname` = '" + msg.getName() + "');";
-                            // Execute update statement in MYSQl database and set balance in database
-                            statement.executeUpdate(updateBalSQL);
+                            // Updated SQL select name statement
+                            selectCNameSQL = "SELECT cname FROM customerprofiles WHERE (`cname` = '" + msg.getName() + "');";
+                            // Execute select statement in MYSQl database and fill cname data table with information from database
+                            cname = statement.executeQuery(selectCNameSQL);
+                            // Process if cname data table has information
+                            if(cname.next())
+                            {
+                                // SQL update balance statement
+                                String updateBalSQL = "UPDATE `vendingdata`.`customerprofiles` SET `acctBalance` = '" + msg.getMsg() + "' WHERE (`cname` = '" + msg.getName() + "');";
+                                // Execute update statement in MYSQl database and set balance in database
+                                statement.executeUpdate(updateBalSQL);
+                                // Notify Controller thread waiter to continue
+                                msg.notify();
+                                try
+                                {
+                                    // Put DataConnect thread into wait mode until Controller notifies
+                                    msg.wait();
+                                }
+                                catch (InterruptedException e)
+                                {
+                                    // Print exception message e to console
+                                    System.out.println(e.getMessage());
+                                }
+                                // SQL add order statement
+                                String insertOrderSQL = "INSERT INTO `vendingdata`.`orders` (`cID`, `pID`) VALUES ((SELECT `custID` FROM `vendingdata`.`customerprofiles` " +
+                                                        "WHERE `cname` = '" + msg.getName() + "'),'" + msg.getMsg() + "');";
+                                // Execute insert statement in MYSQL database and set orderID corresponding with cID in database
+                                statement.executeUpdate(insertOrderSQL);
+                            }
                         }
                     }
                     // Process if acctBalance data table doesn't have information
@@ -113,8 +145,7 @@ public class DataConnect implements Connectable, Runnable
     }
     /**
      * Attempts to establish a connection to the database using the provided URL, username, and password.
-     *
-     * @return {@code true} if the connection is successful, {@code false} if the connection is unsuccessful
+     * @return {@code true} if the connection is successful, {@code false} otherwise.
      */
     public Boolean connect()
     {
@@ -124,17 +155,19 @@ public class DataConnect implements Connectable, Runnable
             DriverManager.getConnection(url, user, pass);
             // set info for getLastEvent to return when called
             info = "Connection to database was Successful";
+            // Return connect boolean method back to controller as true
             return true;
         }
         catch (SQLException e)
         {
             // set info for getLastEvent to return when called
             info = "Connection to database was Unsuccessful";
+            // Return connect boolean method back to controller as false
             return false;
         }
     }
-
     /**
+     * Returns info string set by other methods back to Controller to then be sent to the {@code Logger} class for logging purposes.
      *
      * @return {@code info} string set by other methods back to {@code Controller} class
      */
