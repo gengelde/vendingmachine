@@ -7,6 +7,7 @@ import java.io.IOException;
  */
 public class Logger implements Logable
 {
+    FileWriter writer;
     /**
      * Default constructor for the {@code Logger} class.
      */
@@ -23,7 +24,7 @@ public class Logger implements Logable
     {
         try
         {
-            FileWriter writer = new FileWriter("log.txt", true);
+            writer = new FileWriter("log.txt", true);
             // write to log time of log and log 'info'
             writer.write("Log created at " + LocalDateTime.now() + "\tLog Info: " + info);
             // fancy new line -> ("\n")

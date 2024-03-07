@@ -14,6 +14,14 @@ public class DataConnect implements Connectable, Runnable
     private Message msg;
     String info;
     String input;
+    String selectCNameSQL;
+    String selectBalSQL;
+    String updateBalSQL;
+    String insertOrderSQL;
+    Connection connection;
+    Statement statement;
+    ResultSet acctBalance;
+    ResultSet cname;
     boolean running = true;
     // String input for database connection url
     final String url = "jdbc:mysql://localhost:3306/vendingdata";
@@ -54,24 +62,24 @@ public class DataConnect implements Connectable, Runnable
             synchronized (msg)
             {
                 // SQL select balance statement
-                String selectBalSQL = "SELECT acctBalance FROM customerprofiles WHERE dataFaceHash = " + input + ";";
+                selectBalSQL = "SELECT acctBalance FROM customerprofiles WHERE dataFaceHash = " + input + ";";
                 // SQL select name statement
-                String selectCNameSQL = "SELECT cname FROM customerprofiles WHERE dataFaceHash = " + input + ";";
+                selectCNameSQL = "SELECT cname FROM customerprofiles WHERE dataFaceHash = " + input + ";";
                 try
                 {
                     // Connection statement to database
-                    Connection connection = DriverManager.getConnection(url, user, pass);
+                    connection = DriverManager.getConnection(url, user, pass);
                     // SQL statement sent to database
-                    Statement statement = connection.createStatement();
+                    statement = connection.createStatement();
                     // Execute select statement in MYSQl database and fill acctBalance data table with information from database
-                    ResultSet acctBalance = statement.executeQuery(selectBalSQL);
+                    acctBalance = statement.executeQuery(selectBalSQL);
                     // Process if acctBalance data table has information
                     if (acctBalance.next())
                     {
                         // Convert user balance from MYSQL database to string and send to msg
                         msg.setMsg(acctBalance.getString("acctBalance"));
                         // Execute select statement in MYSQl database and fill cname data table with information from database
-                        ResultSet cname = statement.executeQuery(selectCNameSQL);
+                        cname = statement.executeQuery(selectCNameSQL);
                         // Process if cname data table has information
                         if(cname.next())
                         {
@@ -97,7 +105,7 @@ public class DataConnect implements Connectable, Runnable
                             if(cname.next())
                             {
                                 // SQL update balance statement
-                                String updateBalSQL = "UPDATE `vendingdata`.`customerprofiles` SET `acctBalance` = '" + msg.getMsg() + "' WHERE (`cname` = '" + msg.getName() + "');";
+                                updateBalSQL = "UPDATE `vendingdata`.`customerprofiles` SET `acctBalance` = '" + msg.getMsg() + "' WHERE (`cname` = '" + msg.getName() + "');";
                                 // Execute update statement in MYSQl database and set balance in database
                                 statement.executeUpdate(updateBalSQL);
                                 // Notify Controller thread waiter to continue
@@ -113,7 +121,7 @@ public class DataConnect implements Connectable, Runnable
                                     System.out.println(e.getMessage());
                                 }
                                 // SQL add order statement
-                                String insertOrderSQL = "INSERT INTO `vendingdata`.`orders` (`cID`, `pID`) VALUES ((SELECT `custID` FROM `vendingdata`.`customerprofiles` " +
+                                insertOrderSQL = "INSERT INTO `vendingdata`.`orders` (`cID`, `pID`) VALUES ((SELECT `custID` FROM `vendingdata`.`customerprofiles` " +
                                                         "WHERE `cname` = '" + msg.getName() + "'),'" + msg.getMsg() + "');";
                                 // Execute insert statement in MYSQL database and set orderID corresponding with cID in database
                                 statement.executeUpdate(insertOrderSQL);

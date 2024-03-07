@@ -13,12 +13,14 @@ public class VendingMech implements Vendable
     Map<String, Slot> map = new HashMap<String, Slot>();
     String info;
     String selectedID;
+    Slot selectedSlot;
     /**
      * Default constructor for the {@code VendingMech} class.
      * Creates an instance of the {@code VendingMech} class and initializes it by loading product slots into the internal map.
      */
     public VendingMech()
     {
+        // Call method to populate the internal map
         loadProductMap();
     }
     /**
@@ -34,7 +36,7 @@ public class VendingMech implements Vendable
         if (map.containsKey(slotID))
         {
             // allow for edits of user inputted selected slot
-            Slot selectedSlot = map.get(slotID);
+            selectedSlot = map.get(slotID);
             // Process if slot quantity is less than 1
             if (selectedSlot.getQuantity() < 1)
             {
@@ -57,7 +59,7 @@ public class VendingMech implements Vendable
      */
     public void loadProductMap()
     {
-        // Populate the internal map with vending machine slots.
+        // Populate the internal map with vending machine slots
         map.put("A1", A1);
         map.put("A2", A2);
         map.put("A3", A3);

@@ -8,6 +8,7 @@ public class UI implements Interactable
     // Initialize Local Variables
     String info;
     String input;
+    Scanner scan;
     /**
      * Default constructor for the {@code UI} class.
      */
@@ -22,7 +23,7 @@ public class UI implements Interactable
     public String getUserInput()
     {
         // create scanner to read user input
-        Scanner scan = new Scanner(System.in);
+        scan = new Scanner(System.in);
         // send inputted information to local variable String input
         input = scan.nextLine();
         // set info for getLastEvent to return when called
